@@ -18,6 +18,9 @@ class ClassifierGraph(net.graph.ComputationGraph):
     def build_use_ops(self):
         pass
 
+    def finalize(self):
+        pass
+
 def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
     graph = ClassifierGraph(mode, config)
     if mode is 'train':
