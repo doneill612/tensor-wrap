@@ -5,7 +5,7 @@ class Model(object, metaclass=abc.ABCMeta):
     """
     A TensorFlow-based neural network class model.
     """
-    def __init__(self, name):
+    def __init__(self, name) -> None:
          """
         params:
             `name`      : the model name - used for saving purposes

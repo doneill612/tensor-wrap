@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import net.model
 import classifier_config
 import classifier_graph
@@ -13,7 +14,7 @@ class Classifier(net.model.Model):
         self._config = config
 
     def build_computation_graph(self, mode: str) -> None:
-        self._graph = classifier_graph.build(mode, self.classifier_config)
+        self._graph = classifier_graph.build(mode, self._config)
 
     def train(self) -> None:
         if self._graph is None:
@@ -27,7 +28,7 @@ class Classifier(net.model.Model):
         classifier_runner.train(self._graph, self._session,
                                self._name, self._config)
 
-    def train(self) -> None:
+    def test(self) -> None:
         if self._graph is None:
            raise RuntimeError('Classifier model object {id} has None-type '
                               'computation graph. Must first call '
