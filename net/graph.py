@@ -12,6 +12,10 @@ class ComputationGraph(object, metaclass=abc.ABCMeta):
         self._graph_def = None
 
     @abc.abstractmethod
+    def assertion_check(self):
+        pass
+
+    @abc.abstractmethod
     def build_train_layer_ops(self):
         pass
 

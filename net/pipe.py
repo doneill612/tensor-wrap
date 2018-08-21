@@ -4,19 +4,80 @@ import os
 import tensorflow as tf
 import numpy as np
 
+from typing import Tuple, List
+
 def to_one_hot(label: int, one_hot_size: int) -> Tuple:
     """
     Encodes a label value into a one-hot vector.
-    args:
+
+    Args:
         `label`: the label value
         `one_hot_size`: the length of the resulting one-hot vector.
                         this is equivalent to the total number of labels.
-    returns:
+    Returns:
         `one_hot_label` : a list object representing a one-hot vector.
     """
     one_hot_label = [0] * one_hot_size
     one_hot_label[label - 1] = 1
     return tuple(one_hot_label)
+
+def record_batch_onehot(tf_record_file_paths: List, batch_size: int,
+                        epochs: int, input_size: int,
+                        output_size: int, threads: int=3,
+                        shuffle: bool=True) -> Tuple:
+    """
+    Reads and deserializes `batch_size` Example protos from a specified list of
+    files. The batch is optinally shuffled.
+
+    Args:
+        `file_list`     : a list of file paths to .tfrecords files containing
+                          Example protos
+        `batch_size`    : the size of the batch to pull
+        `epochs`        : the duration in epochs for which to pull batches
+        `input_size`    : the input layer size of the network (essentially a
+                          validation parameter which ensures that the Example
+                          proto features are of the appropriate length)
+        `output_size`   : the output layer size of the network (essentially a
+                          validation parameter which ensures that the Example
+                          proto labels are of the appropriate length)
+        `threads`       : the number of threads to be used when running enqueue
+                          ops
+        `shuffle`       : whether or not to shuffle the data-label pairs in the
+                          batch to be delivered
+    Returns:
+        `inputs`: a batch of inputs to be used in training
+        `labels`: the associated one-hot vector labels of each of the input batches
+    """
+    input_producer = tf.train.string_input_producer(file_list, num_epochs=epochs)
+    reader = tf.TFRecordReader()
+    serialized_example = reader.read(input_producer)[1]
+
+    features = dict(
+        X=tf.FixedLenFeature([input_size], tf.float32),
+        y=tf.FixedLenFeature([output_size], tf.int64)
+    )
+
+    parsed = tf.parse_single_example(serialized_example, features=features)
+
+    parsed_inputs_as_float = tf.cast(parsed['X'], tf.float32)
+    parsed_labels_as_int = tf.cast(parsed['y'], tf.int64)
+
+    if shuffle:
+        inputs, labels = tf.train.shuffle_batch([parsed_inputs_as_float,
+                                                 parsed_labels_as_int],
+                                                batch_size=batch_size,
+                                                capacity=500,
+                                                num_threads=threads,
+                                                allow_smaller_final_batch=True)
+    else:
+        inputs, labels = tf.train.batch([parsed_inputs_as_float,
+                                         parsed_labels_as_int],
+                                        batch_size=batch_size,
+                                        capacity=500,
+                                        num_threads=threads,
+                                        allow_smaller_final_batch=True)
+    return inputs, labels
+
 
 def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
     """
@@ -30,7 +91,8 @@ def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
     file. These files are in a binary format and constitute a `TFRecord` object.
     They can be accessed with a `TFRecordReader` obect which deserializes
     the Example protos and feeds the data to a tensor.
-    args:
+
+    Args:
         `csv_file` : the file name of the .csv file to be converted to a
                      .tfrecords file
     """
@@ -58,7 +120,7 @@ def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
                 )
                 writer.write(example.SerializeToString())
     except Exception as e:
-        print("Exception encountered at #csv_to_tf_record_onehot")
+        tf.logging.fatal("Exception encountered at #csv_to_tf_record_onehot")
         raise e
     finally:
         f.close()

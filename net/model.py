@@ -6,8 +6,8 @@ class Model(object, metaclass=abc.ABCMeta):
     A TensorFlow-based neural network class model.
     """
     def __init__(self, name: str) -> None:
-         """
-        params:
+        """
+        Params:
             `name`      : the model name - used for saving purposes
             `session`   : the TensorFlow session to run the computation graph
             `graph`     : the TensorFlow computation graph
@@ -20,9 +20,10 @@ class Model(object, metaclass=abc.ABCMeta):
     def build_computation_graph(self, mode: str) -> None:
         """
         Constructs the TensorFlow computation graph.
-        params:
+
+        Args:
             mode : the graph building mode - either 'train' or 'use'
-        returns:
+        Returns:
             a `tf.Graph()` object
         """
         pass
