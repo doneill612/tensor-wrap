@@ -22,7 +22,8 @@ def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
     """
     Reads a .csv file containing training data and converts each row
     into Example protos. The csv data is optionally minmax normalized before
-    serialization. Example protos are protocol buffers
+    serialization. The label is converted into a one-hot label.
+    Example protos are protocol buffers
     (https://www.tensorflow.org/programmers_guide/reading_data#file_formats
     see 'Standard TensorFlow format' section) which contain trainable
     feature information. The Example protos are serialized into a .tfrecords
@@ -43,9 +44,9 @@ def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
                 label = to_one_hot(row_float[-1])
                 data = row_float[:-1]
                 if minmax:
-                    max = np.max(data)
-                    min = np.min(data)
-                    data = [(d - min) / (max - min) for d in data]
+                    max_val = np.max(data)
+                    min_val = np.min(data)
+                    data = [(d - min_val) / (max_val - min_val) for d in data]
                 feature = dict(
                     X=tf.train.Feature(
                         float_list=tf.train.FloatList(value=data)),

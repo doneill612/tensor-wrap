@@ -5,7 +5,7 @@ class Model(object, metaclass=abc.ABCMeta):
     """
     A TensorFlow-based neural network class model.
     """
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
          """
         params:
             `name`      : the model name - used for saving purposes
@@ -17,7 +17,7 @@ class Model(object, metaclass=abc.ABCMeta):
         self._name = name
 
     @abc.abstractmethod
-    def build_computation_graph(self, mode):
+    def build_computation_graph(self, mode: str) -> None:
         """
         Constructs the TensorFlow computation graph.
         params:
@@ -28,14 +28,14 @@ class Model(object, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def train(self):
+    def train(self) -> None:
         """
         Trains a network model.
         """
         pass
 
     @abc.abstractmethod
-    def test(self):
+    def test(self) -> None:
         """
         Runs testing on this model's trained network state.
         """
