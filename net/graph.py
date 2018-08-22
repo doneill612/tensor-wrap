@@ -27,7 +27,7 @@ class ComputationGraph(object, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def build_train_ops(self, *params):
+    def build_train_ops(self, **params):
         pass
 
     @abc.abstractmethod
