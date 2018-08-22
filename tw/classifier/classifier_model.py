@@ -4,7 +4,7 @@ import classifier_config
 import classifier_graph
 import classifier_runner
 
-class Classifier(net.model.Model):
+class Classifier(tw.model.Model):
 
     def __init__(self, name: str, config: 'ClassifierConfig') -> None:
         super(Classifier, self).__init__(name)

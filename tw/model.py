@@ -17,7 +17,7 @@ class Model(object, metaclass=abc.ABCMeta):
         self._name = name
 
     @abc.abstractmethod
-    def build_computation_graph(self, mode: str) -> None:
+    def build_computation_graph(self, mode: str='train') -> None:
         """
         Constructs the TensorFlow computation graph.
 
