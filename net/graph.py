@@ -11,26 +11,25 @@ class ComputationGraph(object, metaclass=abc.ABCMeta):
         self._config = config
         self._graph_def = None
 
+    def assign_graph_def(self, graph_def):
+        self._graph_def = graph_def
+
     @abc.abstractmethod
     def assertion_check(self):
         pass
 
     @abc.abstractmethod
-    def build_train_layer_ops(self):
+    def build_train_layer_ops(self, **params):
         pass
 
     @abc.abstractmethod
-    def build_use_layer_ops(self):
+    def build_use_layer_ops(self, **params):
         pass
 
     @abc.abstractmethod
-    def build_train_ops(self):
+    def build_train_ops(self, *params):
         pass
 
     @abc.abstractmethod
-    def build_use_ops(self):
-        pass
-
-    @abc.abstractmethod
-    def finalize(self):
+    def build_use_ops(self, **params):
         pass

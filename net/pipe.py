@@ -48,35 +48,36 @@ def record_batch_onehot(tf_record_file_paths: List, batch_size: int,
         `inputs`: a batch of inputs to be used in training
         `labels`: the associated one-hot vector labels of each of the input batches
     """
-    input_producer = tf.train.string_input_producer(file_list, num_epochs=epochs)
-    reader = tf.TFRecordReader()
-    serialized_example = reader.read(input_producer)[1]
+    with tf.name_scope('data_acquisition'):
+        input_producer = tf.train.string_input_producer(file_list, num_epochs=epochs)
+        reader = tf.TFRecordReader()
+        serialized_example = reader.read(input_producer)[1]
 
-    features = dict(
-        X=tf.FixedLenFeature([input_size], tf.float32),
-        y=tf.FixedLenFeature([output_size], tf.int64)
-    )
+        features = dict(
+            X=tf.FixedLenFeature([input_size], tf.float32),
+            y=tf.FixedLenFeature([output_size], tf.int64)
+        )
 
-    parsed = tf.parse_single_example(serialized_example, features=features)
+        parsed = tf.parse_single_example(serialized_example, features=features)
 
-    parsed_inputs_as_float = tf.cast(parsed['X'], tf.float32)
-    parsed_labels_as_int = tf.cast(parsed['y'], tf.int64)
+        parsed_inputs_as_float = tf.cast(parsed['X'], tf.float32)
+        parsed_labels_as_int = tf.cast(parsed['y'], tf.int64)
 
-    if shuffle:
-        inputs, labels = tf.train.shuffle_batch([parsed_inputs_as_float,
-                                                 parsed_labels_as_int],
-                                                batch_size=batch_size,
-                                                capacity=500,
-                                                num_threads=threads,
-                                                allow_smaller_final_batch=True)
-    else:
-        inputs, labels = tf.train.batch([parsed_inputs_as_float,
-                                         parsed_labels_as_int],
-                                        batch_size=batch_size,
-                                        capacity=500,
-                                        num_threads=threads,
-                                        allow_smaller_final_batch=True)
-    return inputs, labels
+        if shuffle:
+            inputs, labels = tf.train.shuffle_batch([parsed_inputs_as_float,
+                                                     parsed_labels_as_int],
+                                                    batch_size=batch_size,
+                                                    capacity=500,
+                                                    num_threads=threads,
+                                                    allow_smaller_final_batch=True)
+        else:
+            inputs, labels = tf.train.batch([parsed_inputs_as_float,
+                                             parsed_labels_as_int],
+                                            batch_size=batch_size,
+                                            capacity=500,
+                                            num_threads=threads,
+                                            allow_smaller_final_batch=True)
+        return inputs, labels
 
 
 def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
