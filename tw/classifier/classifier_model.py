@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import net.model
+import tw.model
 import classifier_config
 import classifier_graph
 import classifier_runner

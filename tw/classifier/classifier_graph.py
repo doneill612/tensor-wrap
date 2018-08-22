@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*
-import net.graph
-import net.pipe
+import tw.graph
+import tw.pipe
 import tensorflow as tf
 
 class ClassifierGraph(net.graph.ComputationGraph):
