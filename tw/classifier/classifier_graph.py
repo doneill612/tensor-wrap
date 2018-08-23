@@ -10,7 +10,7 @@ class ClassifierGraph(tw.graph.ComputationGraph):
     def __init__(self, mode, config):
         super(ClassifierGraph, self).__init__(mode, config)
 
-    def assertion_check(self):
+    def assertions(self):
         """
         Asserts valid classifier configuration and valid graph construction mode.
 
@@ -113,7 +113,7 @@ class ClassifierGraph(tw.graph.ComputationGraph):
             tf.add_to_collection('validation_summary_op', validation_summary_op)
             tf.add_to_collection('combined_summary_op', combined_summary_op)
 
-    def build_use_layer_ops(self, **params) -> Dict:
+    def build_use_layer_ops(self, **params):
         layer_sizes = params['layer_sizes']
         inputs = params['inputs']
         layer_activations = params['layer_activations']
@@ -125,8 +125,7 @@ class ClassifierGraph(tw.graph.ComputationGraph):
             activation = layer_activations[i]
             inputs = activation(inputs)
         logits = tf.identity(inputs)
-        params.update(dict(logits=logits))
-        return params
+        tf.add_to_collection('logits', logits)
 
 def _activation_fun_from_key(a):
     if a == 'sigmoid':
@@ -141,7 +140,7 @@ def _activation_fun_from_key(a):
 def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
     with tf.Graph().as_default() as _graph:
         graph = ClassifierGraph(mode, config)
-        graph.assertion_check()
+        graph.assertions()
         layer_sizes = config.layer_sizes
         train_fps = config.tf_record_training_file_paths
         v_fps = config.tf_record_validation_file_paths

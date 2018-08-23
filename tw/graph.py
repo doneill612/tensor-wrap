@@ -15,7 +15,7 @@ class ComputationGraph(object, metaclass=abc.ABCMeta):
         self._graph_def = graph_def
 
     @abc.abstractmethod
-    def assertion_check(self):
+    def assertions(self):
         pass
 
     @abc.abstractmethod
