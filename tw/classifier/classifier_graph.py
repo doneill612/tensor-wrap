@@ -45,6 +45,8 @@ class ClassifierGraph(tw.graph.ComputationGraph):
         v_inputs = params['validation_inputs']
         layer_activations = params['layer_activations']
         layer_sizes = params['layer_sizes']
+        labels = params['labels']
+        v_labels = params['v_labels']
 
         for i, channels_out in enumerate(layer_sizes[1:])
             with tf.name_scope('layer_{}'.format(i + 1)):
@@ -69,16 +71,12 @@ class ClassifierGraph(tw.graph.ComputationGraph):
             logits = tf.identity(inputs, name='logits')
             v_logits = tf.identity(v_inputs)
 
-            params.update(dict(logits=logits, v_logits=vlogits))
-            return params
+            _build_optimizer_ops(logits, v_logits, labels,
+                    v_labels, learning_rate)
 
 
-    def build_train_ops(self, **params):
-        logits = params['logits']
-        v_logits = params['v_logits']
-        labels = params['labels']
-        v_labels = params['v_labels']
-        learning_rate = params['learning_rate']
+    def _build_optimizer_ops(self, logits, v_logits,
+                         labels, v_labels, learning_rate):
 
         with tf.name_scope('training'):
             global_step = tf.Variable(0, trainable=False, name='global_step',
@@ -169,8 +167,10 @@ def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
             params = dict(layer_sizes=layer_sizes, inputs=_inputs,
                           validation_inputs=_v_inputs,
                           layer_activations=layer_activations,
-                          learning_rate=learning_rate)
-            graph.build_train_ops(**graph.build_train_layer_ops(**params))
+                          learning_rate=learning_rate,
+                          labels=labels,
+                          v_labels=v_labels)
+            graph.build_train_layer_ops(**params)
         else:
             inputs, _ = tw.pipe.record_batch_onehot(test_fps,
                                                          1,
