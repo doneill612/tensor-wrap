@@ -10,7 +10,7 @@ from classifier_model import ClassifierModel
 def train():
     pass
 
-def train():
+def test():
     pass
 
 class ClassifierUnitTest(tf.test.TestCase):
