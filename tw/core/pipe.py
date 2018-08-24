@@ -18,7 +18,7 @@ def to_one_hot(label: int, one_hot_size: int) -> Tuple:
         `one_hot_label` : a list object representing a one-hot vector.
     """
     one_hot_label = [0] * one_hot_size
-    one_hot_label[label - 1] = 1
+    one_hot_label[label] = 1
     return tuple(one_hot_label)
 
 def record_batch_onehot(tf_record_file_paths: List, batch_size: int,
@@ -104,8 +104,9 @@ def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
         with tf.python_io.TFRecordWriter(writer_path) as writer:
             for row in reader:
                 row_float = list(map(float, row))
-                label = to_one_hot(row_float[-1])
+                label = to_one_hot(int(row_float[-1]), 2)
                 data = row_float[:-1]
+                print(data, label)
                 if minmax:
                     max_val = np.max(data)
                     min_val = np.min(data)
@@ -125,3 +126,18 @@ def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
         raise e
     finally:
         f.close()
+
+class PipeUnitTest(tf.test.TestCase):
+
+    def setUp(self):
+        self.training_path = '../sample_data/xortrain.csv'
+        self.validation_path = '../sample_data/xorvalidate.csv'
+        self.testing_path = '../sample_data/xortest.csv'
+
+    def testCsvToTfrecord(self):
+        csv_to_tf_record_onehot(csv_file=self.validation_path, minmax=False)
+        csv_to_tf_record_onehot(csv_file=self.training_path, minmax=False)
+        csv_to_tf_record_onehot(csv_file=self.testing_path, minmax=False)
+
+if __name__ == '__main__':
+    tf.test.main()

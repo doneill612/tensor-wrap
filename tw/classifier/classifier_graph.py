@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*
 import tw.graph
-import tw.pipe
+import tw.core.pipe
 import tensorflow as tf
 
 from typing import Dict
@@ -148,12 +148,12 @@ def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
         if mode is 'train':
             batch_size = config.batch_size
             epochs = config.epochs
-            inputs, labels = tw.pipe.record_batch_onehot(train_fps,
+            inputs, labels = tw.core.pipe.record_batch_onehot(train_fps,
                                                          batch_size,
                                                          epochs,
                                                          layer_sizes[0],
                                                          layer_sizes[-1])
-            v_inputs, v_labels = tw.pipe.record_batch_onehot(v_fps,
+            v_inputs, v_labels = tw.core.pipe.record_batch_onehot(v_fps,
                                                              batch_size,
                                                              epochs,
                                                              layer_sizes[0],
@@ -172,11 +172,11 @@ def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
                           v_labels=v_labels)
             graph.build_train_layer_ops(**params)
         else:
-            inputs, _ = tw.pipe.record_batch_onehot(test_fps,
-                                                         1,
-                                                         None,
-                                                         layer_sizes[0],
-                                                         layer_sizes[-1])
+            inputs, _ = tw.core.pipe.record_batch_onehot(test_fps,
+                                                    1,
+                                                    None,
+                                                    layer_sizes[0],
+                                                    layer_sizes[-1])
             _inputs = tf.identity(inputs)
             params = dict(layer_sizes=layer_sizes, inputs=_inputs,
                           layer_activations=layer_activations)
