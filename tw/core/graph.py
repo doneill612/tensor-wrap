@@ -14,6 +14,9 @@ class ComputationGraph(object, metaclass=abc.ABCMeta):
     def assign_graph_def(self, graph_def):
         self._graph_def = graph_def
 
+    def graph_def(self):
+        return self._graph_def
+
     @abc.abstractmethod
     def assertions(self):
         pass

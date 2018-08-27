@@ -49,7 +49,8 @@ def record_batch_onehot(tf_record_file_paths: List, batch_size: int,
         `labels`: the associated one-hot vector labels of each of the input batches
     """
     with tf.name_scope('data_acquisition'):
-        input_producer = tf.train.string_input_producer(file_list, num_epochs=epochs)
+        input_producer = tf.train.string_input_producer([tf_record_file_paths],
+                                                        num_epochs=epochs)
         reader = tf.TFRecordReader()
         serialized_example = reader.read(input_producer)[1]
 
@@ -68,6 +69,7 @@ def record_batch_onehot(tf_record_file_paths: List, batch_size: int,
                                                      parsed_labels_as_int],
                                                     batch_size=batch_size,
                                                     capacity=500,
+                                                    min_after_dequeue=10,
                                                     num_threads=threads,
                                                     allow_smaller_final_batch=True)
         else:
@@ -126,18 +128,3 @@ def csv_to_tf_record_onehot(csv_file: str, minmax: bool=True) -> None:
         raise e
     finally:
         f.close()
-
-class PipeUnitTest(tf.test.TestCase):
-
-    def setUp(self):
-        self.training_path = '../sample_data/xortrain.csv'
-        self.validation_path = '../sample_data/xorvalidate.csv'
-        self.testing_path = '../sample_data/xortest.csv'
-
-    def testCsvToTfrecord(self):
-        csv_to_tf_record_onehot(csv_file=self.validation_path, minmax=False)
-        csv_to_tf_record_onehot(csv_file=self.training_path, minmax=False)
-        csv_to_tf_record_onehot(csv_file=self.testing_path, minmax=False)
-
-if __name__ == '__main__':
-    tf.test.main()

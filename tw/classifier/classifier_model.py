@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
-import tw.model
-import classifier_config
-import classifier_graph
-import classifier_runner
+import tw.core.model
+import tw.classifier.classifier_config
+import tw.classifier.classifier_graph
+import tw.classifier.classifier_runner
 
-class Classifier(tw.model.Model):
+class Classifier(tw.core.model.Model):
 
     def __init__(self, name: str, config: 'ClassifierConfig') -> None:
         super(Classifier, self).__init__(name)
-        if not isinstance(config, classifier_config.ClassifierConfig):
-            raise ValueError('The config parameter must
+        if not isinstance(config, tw.classifier.classifier_config.ClassifierConfig):
+            raise ValueError('The config parameter must '
                              'be a ClassifierConfig object')
         self._config = config
 
     def build_computation_graph(self, mode: str) -> None:
-        self._graph = classifier_graph.build(mode, self._config)
+        self._graph = tw.classifier.classifier_graph.build(mode, self._config)
 
     def train(self) -> None:
         if self._graph is None:

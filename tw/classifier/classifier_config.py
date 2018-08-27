@@ -7,7 +7,7 @@ class ClassifierConfig(object):
                  'layer_activations',
                  'learning_rate',
                  'batch_size',
-                 'epochs'
+                 'epochs',
                  'saved_model_path',
                  'tf_record_training_file_paths',
                  'tf_record_validation_file_paths',
@@ -15,7 +15,10 @@ class ClassifierConfig(object):
 
     def __init__(self, layer_sizes: Tuple, layer_activations: Tuple,
                  learning_rate: float, batch_size: int, epochs: int,
-                 saved_model_path: str) -> None:
+                 saved_model_path: str,
+                 tf_record_training_file_paths: str,
+                 tf_record_validation_file_paths: str,
+                 tf_record_testing_file_paths: str) -> None:
 
         super(ClassifierConfig, self).__setattr__('layer_sizes', layer_sizes)
         super(ClassifierConfig, self).__setattr__('layer_activations',
