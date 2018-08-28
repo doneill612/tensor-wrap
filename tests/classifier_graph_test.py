@@ -19,17 +19,19 @@ class ClassifierUnitTest(tf.test.TestCase):
                                        batch_size=32,
                                        epochs=5,
                                        saved_model_path=\
-                                        '../sample_data/saved_models/',
+                                        '../tw/sample_data/saved_models/',
                                        tf_record_training_file_paths=\
-                                        '../sample_data/xortrain.tfrecords',
+                                        '../tw/sample_data/xortrain.tfrecords',
                                        tf_record_validation_file_paths=\
-                                        '../sample_data/xorvalidate.tfrecords',
+                                        '../tw/sample_data/xorvalidate.tfrecords',
                                        tf_record_testing_file_paths=\
-                                        '../sample_data/xortest.tfrecords')
+                                        '../tw/sample_data/xortest.tfrecords',
+                                       sparse_labels=False)
         self.model = Classifier(name="classifier_test", config=self.config)
 
     def testTrainGraphConstruction(self):
         self.model.build_computation_graph('train')
+        self.model.train()
 
     def testUseGraphConstruction(self):
         pass

@@ -22,13 +22,13 @@ class Classifier(tw.core.model.Model):
             raise RuntimeError('Classifier model object {id} has None-type '
                                'computation graph. Must first call '
                                '#build_computation_graph.'.format(id=self))
-        if self._graph.mode is not 'train':
+        if self._graph.mode() is not 'train':
             tf.logging.fatal('Incorrect graph mode')
             raise RuntimeError('Classifier graph {id} contains use-type ops. '
                                'Must reconstruct the computation graph in '
                                '\'train\' mode.'.format(id=self._graph))
-        classifier_runner.train(self._graph, self._session,
-                               self._name, self._config)
+        tw.classifier.classifier_runner.train(self._graph, self._session,
+                                              self._name, self._config)
 
     def test(self) -> None:
         if self._graph is None:
@@ -37,10 +37,10 @@ class Classifier(tw.core.model.Model):
             raise RuntimeError('Classifier model object {id} has None-type '
                               'computation graph. Must first call '
                               '#build_computation_graph.'.format(id=self))
-        if self._graph.mode is not 'use':
+        if self._graph.mode() is not 'use':
             tf.logging.fatal('Incorrect graph mode')
             raise RuntimeError('Classifier graph {id} contains train-type ops. '
                               'Must reconstruct the computation graph in '
                               '\'use\' mode.'.format(id=self._graph))
-        classifier_runner.test(self._graph, self._session,
-                               self._name, self._config)
+        tw.classifier.classifier_runner.test(self._graph, self._session,
+                                             self._name, self._config)

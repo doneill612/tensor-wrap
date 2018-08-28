@@ -52,11 +52,11 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
             tf.add_to_collection('combined_cost', combined_cost)
 
             cost = tf.reduce_mean(
-                    tf.nn.softmax_cross_entropy_with_logits(logits=logits,
-                                                            labels=labels))
+                    tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,
+                                                               labels=labels))
             v_cost = tf.reduce_mean(
-                      tf.nn.softmax_cross_entropy_with_logits(logits=v_logits,
-                                                              labels=v_labels))
+                      tf.nn.softmax_cross_entropy_with_logits_v2(logits=v_logits,
+                                                                 labels=v_labels))
             optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
             with tf.name_scope('apply_grads'):
                 train_op = optimizer.minimize(cost, global_step=global_step)
@@ -105,11 +105,11 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
                                      W, collections=['training_summaries'])
                 tf.summary.histogram('biases_summary_layer{}'.format(str(i)),
                                      b, collections=['training_summaries'])
-            logits = tf.identity(inputs, name='logits')
-            v_logits = tf.identity(v_inputs)
+        logits = tf.identity(inputs, name='logits')
+        v_logits = tf.identity(v_inputs)
 
-            self._build_optimizer_ops(logits, v_logits, labels,
-                                      v_labels, learning_rate)
+        self._build_optimizer_ops(logits, v_logits, labels,
+                                  v_labels, learning_rate)
 
     def build_use_layer_ops(self, **params):
         layer_sizes = params['layer_sizes']
@@ -147,6 +147,7 @@ def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
 
         learning_rate = config.learning_rate
         layer_activations = [_activation_fun_from_key(s) for s in config.layer_activations]
+
         if mode is 'train':
             batch_size = config.batch_size
             epochs = config.epochs

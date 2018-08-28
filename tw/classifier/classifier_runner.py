@@ -3,10 +3,19 @@ import tensorflow as tf
 
 FLAGS = tf.app.flags.FLAGS
 
+tf.app.flags.DEFINE_integer('save_freq', 2,
+                            'Frequency in seconds for updating the model '
+                            'save file. default = 60 sec. '
+                            'Use --save_freq to change.')
+tf.app.flags.DEFINE_integer('update_freq', 100,
+                            'Frequency in global training step interations for sending '
+                            'a training update message. default = 100 steps '
+                            'Use --update_freq to change.')
 tf.app.flags.DEFINE_integer('max_steps', 100000,
                             'Maxmimum number of global training steps to '
                             'take in training the model. default = 100000 steps '
                             'Use --max_steps to change.')
+
 
 def _graph_collection(graph, collection):
     return graph.get_collection(collection)[0]
@@ -30,13 +39,13 @@ def _log(_global_step, _cost, _validation_cost=None):
                         _global_step, _cost)
 
 def train(graph, session, name, config):
-    FLAGS._parse_flags(args=None)
+
     graph = graph.graph_def()
 
     global_step = _graph_collection(graph, 'global_step')
     train_op = _graph_collection(graph, 'train_op')
     cost = _graph_collection(graph, 'cost')
-    v_cost = _graph_collection(graph, 'validation_cost')
+    v_cost = _graph_collection(graph, 'v_cost')
     training_summary_op = _graph_collection(graph, 'training_summary_op')
     validation_summary_op = _graph_collection(graph, 'validation_summary_op')
     combined_summary_op = _graph_collection(graph, 'combined_summary_op')
@@ -45,11 +54,12 @@ def train(graph, session, name, config):
     supervisor = tf.train.Supervisor(graph=graph,
                                      logdir=config.saved_model_path,
                                      global_step=global_step,
-                                     checkpoint_basename='{}.ckpt'.format(name))
+                                     checkpoint_basename='{}.ckpt'.format(name),
+                                     ready_op=None)
     with supervisor.managed_session() as sess:
-        train_writer = tf.summary.FileWriter('../sample_data/summaries',
+        train_writer = tf.summary.FileWriter('../tw/sample_data/summaries',
                                              graph=sess.graph)
-        validation_writer = tf.summary.FileWriter('../sample_data/v_summaries',
+        validation_writer = tf.summary.FileWriter('../tw/sample_data/v_summaries',
                                                   graph=sess.graph)
         tf.logging.info('Writers established, beginning training.')
 
