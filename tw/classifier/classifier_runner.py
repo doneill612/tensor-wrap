@@ -17,10 +17,10 @@ tf.app.flags.DEFINE_integer('max_steps', 100000,
                             'Use --max_steps to change.')
 
 
-def _graph_collection(graph, collection):
+def _graph_collection(graph, collection) -> 'tf.Operation':
     return graph.get_collection(collection)[0]
 
-def _log(_global_step, _cost, _validation_cost=None):
+def _log(_global_step, _cost, _validation_cost=None) -> None:
     """
     Helper function to log training information.
     args:
@@ -38,7 +38,8 @@ def _log(_global_step, _cost, _validation_cost=None):
                         'Training Loss: %.3f',
                         _global_step, _cost)
 
-def train(graph, session, name, config):
+def train(graph: 'ClassifierGraph', session: 'tf.Session',
+          name: str, config: 'ClassifierConfig') -> None:
 
     graph = graph.graph_def()
 

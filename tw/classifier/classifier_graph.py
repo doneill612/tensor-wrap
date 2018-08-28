@@ -7,10 +7,10 @@ from typing import Dict
 
 class ClassifierGraph(tw.core.graph.ComputationGraph):
 
-    def __init__(self, mode, config):
+    def __init__(self, mode, config) -> None:
         super(ClassifierGraph, self).__init__(mode, config)
 
-    def assertions(self):
+    def assertions(self) -> None:
         """
         Asserts valid classifier configuration and valid graph construction mode.
 
@@ -41,7 +41,7 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
                                  '"linear", or "tanh".')
 
     def _build_optimizer_ops(self, logits, v_logits,
-                             labels, v_labels, learning_rate):
+                             labels, v_labels, learning_rate) -> None:
 
         with tf.name_scope('training'):
             global_step = tf.Variable(0, trainable=False, name='global_step',
@@ -76,7 +76,7 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
             tf.add_to_collection('validation_summary_op', validation_summary_op)
             tf.add_to_collection('combined_summary_op', combined_summary_op)
 
-    def build_train_layer_ops(self, **params):
+    def build_train_layer_ops(self, **params) -> None:
         inputs = params['inputs']
         v_inputs = params['validation_inputs']
         layer_activations = params['layer_activations']
@@ -111,7 +111,7 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
         self._build_optimizer_ops(logits, v_logits, labels,
                                   v_labels, learning_rate)
 
-    def build_use_layer_ops(self, **params):
+    def build_use_layer_ops(self, **params) -> None:
         layer_sizes = params['layer_sizes']
         inputs = params['inputs']
         layer_activations = params['layer_activations']
@@ -125,7 +125,7 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
         logits = tf.identity(inputs)
         tf.add_to_collection('logits', logits)
 
-def _activation_fun_from_key(a):
+def _activation_fun_from_key(a: str):
     if a == 'sigmoid':
         return tf.nn.sigmoid
     elif a == 'relu':
