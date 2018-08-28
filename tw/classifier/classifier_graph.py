@@ -133,13 +133,18 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
         inputs = params['inputs']
         layer_activations = params['layer_activations']
         for i, channels_out in enumerate(layer_sizes[1:]):
-            channels_in = int(inputs.get_shape()[1])
-            W = tf.Variable(tf.zeros(shape=[channels_in, channels_out]))
-            b = tf.Variable(tf.constant(1.0, shape=[channels_out]))
-            inputs = tf.add(tf.matmul(inputs, W), b)
-            activation = layer_activations[i]
-            inputs = activation(inputs)
-        logits = tf.identity(inputs)
+            with tf.name_scope('layer_{}'.format(i + 1)):
+                channels_in = int(inputs.get_shape()[1])
+                W = tf.Variable(tf.random_normal(
+                                    shape=[channels_in, channels_out],
+                                    stddev=0.50),
+                                name='weights_layer{}'.format(str(i + 1)))
+                b = tf.Variable(tf.constant(1.0, shape=[channels_out]),
+                                name='biases_layer{}'.format(str(i + 1)))
+                inputs = tf.add(tf.matmul(inputs, W), b)
+                activation = layer_activations[i]
+                inputs = activation(inputs)
+        logits = tf.nn.softmax(inputs, name='logits')
         tf.add_to_collection('logits', logits)
 
 def _activation_fun_from_key(a: str):
@@ -203,11 +208,12 @@ def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
                           v_labels=v_labels)
             graph.build_train_layer_ops(**params)
         else:
-            inputs, _ = tw.core.pipe.record_batch_onehot(test_fps,
-                                                    1,
-                                                    None,
-                                                    layer_sizes[0],
-                                                    layer_sizes[-1])
+            inputs, labels = tw.core.pipe.record_batch_onehot(test_fps,
+                                                              1,
+                                                              None,
+                                                              layer_sizes[0],
+                                                              layer_sizes[-1])
+            tf.add_to_collection('labels', labels)
             _inputs = tf.identity(inputs)
             params = dict(layer_sizes=layer_sizes, inputs=_inputs,
                           layer_activations=layer_activations)

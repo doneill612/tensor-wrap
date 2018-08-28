@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
+import numpy as np
 
 FLAGS = tf.app.flags.FLAGS
+
+tf.logging.set_verbosity(tf.logging.INFO)
 
 tf.app.flags.DEFINE_integer('save_freq', 2,
                             'Frequency in seconds for updating the model '
@@ -38,7 +41,7 @@ def _log(_global_step, _cost, _validation_cost=None) -> None:
                         'Training Loss: %.3f',
                         _global_step, _cost)
 
-def train(graph: 'ClassifierGraph', session: 'tf.Session',
+def train(graph: 'ClassifierGraph', sess: 'tf.Session',
           name: str, config: 'ClassifierConfig') -> None:
     """
     Trains a basic classifier network by executing the nodes
@@ -67,6 +70,7 @@ def train(graph: 'ClassifierGraph', session: 'tf.Session',
     supervisor = tf.train.Supervisor(graph=graph,
                                      logdir=config.saved_model_path,
                                      global_step=global_step,
+                                     save_model_secs=FLAGS.save_freq,
                                      checkpoint_basename='{}.ckpt'.format(name),
                                      ready_op=None)
     with supervisor.managed_session() as sess:
@@ -117,5 +121,42 @@ def train(graph: 'ClassifierGraph', session: 'tf.Session',
         supervisor.saver.save(sess, supervisor.save_path, global_step=_global_step)
         tf.logging.info('Training complete.')
 
-def test():
-    pass
+def test(graph: 'ClassifierGraph', sess: 'tf.Session',
+         config: 'ClassifierConfig') -> None:
+    """
+    Tests the accuracy of a basic classifier network by executing the nodes
+    in the TensorFlow computation graph. Unlike training which is performed
+    by a `Supervisor` object, testing is performed in a less complex, more
+    compact `Session` object.
+
+
+    Args:
+        graph   : the classifier compound graph object
+        session : the model session object
+        config  : the model configuration
+    """
+    graph = graph.graph_def()
+    record_count = 1
+    for r in tf.python_io.tf_record_iterator(config.tf_record_testing_file_paths):
+        record_count += 1
+    with tf.Session(graph=graph) as sess:
+        saver = tf.train.Saver()
+        ckpt = tf.train.get_checkpoint_state(config.saved_model_path)
+        saver.restore(sess, ckpt.model_checkpoint_path)
+        logits = _graph_collection(graph, 'logits')
+        labels = _graph_collection(graph, 'labels')
+        coordinator = tf.train.Coordinator()
+        tf.train.start_queue_runners(sess, coordinator)
+        result = []
+        for _ in range(record_count + 1):
+            _logits, _labels = sess.run([logits, labels])
+            _logits = np.squeeze(_logits).astype(int)
+            _labels = np.squeeze(_labels).astype(int)
+            correct = int((_logits == _labels).all())
+            result.append(correct)
+            tf.logging.info('Output: {} '
+                            'Expected: {} '
+                            'Correct?: {}'.format(_logits, _labels,
+                                                  bool(correct)))
+        tf.logging.info('Testing complete.'
+                        'Accuracy = {}%'.format(100.0 * sum(result) / len(result)))

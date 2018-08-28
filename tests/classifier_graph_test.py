@@ -18,7 +18,7 @@ class ClassifierUnitTest(tf.test.TestCase):
                                                           'linear'),
                                        learning_rate=0.05,
                                        batch_size=32,
-                                       epochs=5,
+                                       epochs=50,
                                        saved_model_path=\
                                         '../tw/sample_data/saved_models/',
                                        tf_record_training_file_paths=\
@@ -34,7 +34,8 @@ class ClassifierUnitTest(tf.test.TestCase):
         self.model.train()
 
     def testUseGraphConstruction(self):
-        pass
+        self.model.build_computation_graph(ComputationGraph.USE)
+        self.model.test()
 
 if __name__ == '__main__':
     tf.test.main()

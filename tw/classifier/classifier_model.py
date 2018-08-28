@@ -45,4 +45,4 @@ class Classifier(tw.core.model.Model):
                               'Must reconstruct the computation graph in '
                               '\'use\' mode.'.format(id=self._graph))
         tw.classifier.classifier_runner.test(self._graph, self._session,
-                                             self._name, self._config)
+                                             self._config)
