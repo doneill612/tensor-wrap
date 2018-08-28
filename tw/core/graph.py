@@ -4,6 +4,9 @@ import tensorflow as tf
 
 class ComputationGraph(object, metaclass=abc.ABCMeta):
 
+    TRAIN: str = 'train'
+    USE: str = 'use'
+
     def __init__(self, mode: str, config) -> None:
         self._mode = mode
         self._config = config

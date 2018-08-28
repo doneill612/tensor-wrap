@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(__file__, os.pardir, os.pardir)))
 
 from tw.classifier.classifier_config import ClassifierConfig
 from tw.classifier.classifier_model import Classifier
+from tw.core.graph import ComputationGraph
 
 class ClassifierUnitTest(tf.test.TestCase):
 
@@ -25,12 +26,11 @@ class ClassifierUnitTest(tf.test.TestCase):
                                        tf_record_validation_file_paths=\
                                         '../tw/sample_data/xorvalidate.tfrecords',
                                        tf_record_testing_file_paths=\
-                                        '../tw/sample_data/xortest.tfrecords',
-                                       sparse_labels=False)
+                                        '../tw/sample_data/xortest.tfrecords')
         self.model = Classifier(name="classifier_test", config=self.config)
 
     def testTrainGraphConstruction(self):
-        self.model.build_computation_graph('train')
+        self.model.build_computation_graph(ComputationGraph.TRAIN)
         self.model.train()
 
     def testUseGraphConstruction(self):

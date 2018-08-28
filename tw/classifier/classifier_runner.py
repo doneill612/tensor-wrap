@@ -40,7 +40,19 @@ def _log(_global_step, _cost, _validation_cost=None) -> None:
 
 def train(graph: 'ClassifierGraph', session: 'tf.Session',
           name: str, config: 'ClassifierConfig') -> None:
+    """
+    Trains a basic classifier network by executing the nodes
+    in the TensorFlow computation graph. Training is performed
+    by a `Supervisor` object.
 
+    See https://www.tensorflow.org/api_docs/python/tf/train/Supervisor
+
+    Args:
+        graph   : the classifier compound graph object
+        session : the model session object
+        name    : the model name used for saving
+        config  : the model configuration
+    """
     graph = graph.graph_def()
 
     global_step = _graph_collection(graph, 'global_step')

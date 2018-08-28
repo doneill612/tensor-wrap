@@ -23,7 +23,8 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
                 - activation function specified by config is not 'sigmoid',
                     'relu', or 'tanh'
         """
-        if self._mode not in ('train', 'use'):
+        if self._mode not in (tw.core.graph.ComputationGraph.TRAIN,
+                              tw.core.graph.ComputationGraph.USE):
             tf.logging.fatal('Bad config passed to graph builder.')
             raise ValueError('The config mode parameter '
                              'must be "train" or "use".')
@@ -77,6 +78,14 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
             tf.add_to_collection('combined_summary_op', combined_summary_op)
 
     def build_train_layer_ops(self, **params) -> None:
+        """
+        Constructs the graph ops to be executed when training the
+        classifier model.
+
+        Args:
+            **params : a parameter dictionary containing both tensors and
+                       scalars to be used in the graph construction
+        """
         inputs = params['inputs']
         v_inputs = params['validation_inputs']
         layer_activations = params['layer_activations']
@@ -112,6 +121,14 @@ class ClassifierGraph(tw.core.graph.ComputationGraph):
                                   v_labels, learning_rate)
 
     def build_use_layer_ops(self, **params) -> None:
+        """
+        Constructs the graph ops to be executed when testing the
+        classifier model.
+
+        Args:
+            **params : a parameter dictionary containing both tensors and
+                       scalars to be used in the graph construction
+        """
         layer_sizes = params['layer_sizes']
         inputs = params['inputs']
         layer_activations = params['layer_activations']
@@ -136,6 +153,17 @@ def _activation_fun_from_key(a: str):
         return tf.identity
 
 def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
+    """
+    Constructs the compound computation graph object, as well as the
+    TensorFlow computation graph (termed the graph definition of the
+    compound object).
+
+    Args:
+        config : the classifier model configuration
+    Returns:
+        graph : a compound `ClassifierGraph` object containing the
+                TensorFlow computation graph definition
+    """
     with tf.Graph().as_default() as _graph:
         graph = ClassifierGraph(mode, config)
         graph.assertions()
@@ -148,19 +176,19 @@ def build(mode, config: 'ClassifierConfig') -> 'ClassifierGraph':
         learning_rate = config.learning_rate
         layer_activations = [_activation_fun_from_key(s) for s in config.layer_activations]
 
-        if mode is 'train':
+        if mode is tw.core.graph.ComputationGraph.TRAIN:
             batch_size = config.batch_size
             epochs = config.epochs
             inputs, labels = tw.core.pipe.record_batch_onehot(train_fps,
-                                                         batch_size,
-                                                         epochs,
-                                                         layer_sizes[0],
-                                                         layer_sizes[-1])
+                                                              batch_size,
+                                                              epochs,
+                                                              layer_sizes[0],
+                                                              layer_sizes[-1])
             v_inputs, v_labels = tw.core.pipe.record_batch_onehot(v_fps,
-                                                             batch_size,
-                                                             epochs,
-                                                             layer_sizes[0],
-                                                             layer_sizes[-1])
+                                                                  batch_size,
+                                                                  epochs,
+                                                                  layer_sizes[0],
+                                                                  layer_sizes[-1])
             inputs = tf.identity(inputs, name='inputs')
             labels = tf.identity(labels, name='labels')
             tf.add_to_collection('inputs', inputs)

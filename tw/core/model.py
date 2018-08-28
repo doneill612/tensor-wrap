@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import abc
 
+from tw.core.graph import ComputationGraph
+
 class Model(object, metaclass=abc.ABCMeta):
     """
     A TensorFlow-based neural network class model.
@@ -17,7 +19,7 @@ class Model(object, metaclass=abc.ABCMeta):
         self._name = name
 
     @abc.abstractmethod
-    def build_computation_graph(self, mode: str='train') -> None:
+    def build_computation_graph(self, mode: str=ComputationGraph.TRAIN) -> None:
         """
         Constructs the TensorFlow computation graph.
 

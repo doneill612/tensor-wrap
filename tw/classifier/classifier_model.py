@@ -4,6 +4,8 @@ import tw.classifier.classifier_config
 import tw.classifier.classifier_graph
 import tw.classifier.classifier_runner
 
+from tw.core.graph import ComputationGraph
+
 class Classifier(tw.core.model.Model):
 
     def __init__(self, name: str, config: 'ClassifierConfig') -> None:
@@ -22,7 +24,7 @@ class Classifier(tw.core.model.Model):
             raise RuntimeError('Classifier model object {id} has None-type '
                                'computation graph. Must first call '
                                '#build_computation_graph.'.format(id=self))
-        if self._graph.mode() is not 'train':
+        if self._graph.mode() is not ComputationGraph.TRAIN:
             tf.logging.fatal('Incorrect graph mode')
             raise RuntimeError('Classifier graph {id} contains use-type ops. '
                                'Must reconstruct the computation graph in '
@@ -37,7 +39,7 @@ class Classifier(tw.core.model.Model):
             raise RuntimeError('Classifier model object {id} has None-type '
                               'computation graph. Must first call '
                               '#build_computation_graph.'.format(id=self))
-        if self._graph.mode() is not 'use':
+        if self._graph.mode() is not ComputationGraph.USE:
             tf.logging.fatal('Incorrect graph mode')
             raise RuntimeError('Classifier graph {id} contains train-type ops. '
                               'Must reconstruct the computation graph in '
