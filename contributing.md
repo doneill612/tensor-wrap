@@ -14,6 +14,8 @@ Thanks for contributing! Your interest in the project is greatly appreciated.
 ## Features
 Similarly to fixing bugs, if you design a new feature and are happy with the result,
 feel free to open a [pull request](https://github.com/doneill612/tensor-wrap/pulls).
+Make sure the pull request has a clear and concise description of the feature
+you are adding, and make sure that it includes appropriate unit tests and results.
 
 ### Code style
 This repository doesn't follow any particular Python coding standard. However,
